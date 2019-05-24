@@ -1,3 +1,3 @@
 # Microservices with Docker, Flask, and React
 
-[![Build Status](https://travis-ci.org/pjcrouse/testdriven-app.svg?branch=master)](https://travis-ci.org/pjcrrouse/testdriven-app)
+[![Build Status](https://travis-ci.org/pjcrouse/testdriven-app.svg?branch=master)](https://travis-ci.org/pjcrouse/testdriven-app)
