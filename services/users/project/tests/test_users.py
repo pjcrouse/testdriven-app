@@ -5,6 +5,7 @@ from project.tests.base import BaseTestCase
 from project import db
 from project.api.models import User
 
+
 def add_user(username, email):
     user = User(username=username, email=email)
     db.session.add(user)
@@ -26,8 +27,10 @@ class TestUserService(BaseTestCase):
     def test_add_user(self):
         """Ensure a new uswer can be added to db"""
         with self.client:
-            response = self.client.post('/users', data=json.dumps({'username': 'pat', 'email': 'email1@gmail.com'}),
-                                        content_type='application/json',)
+            response = self.client.post('/users',
+                                        data=json.dumps({'username': 'pat',
+                                                         'email': 'email1@gmail.com'}),
+                                        content_type='application/json', )
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 201)
             self.assertIn('email1@gmail.com was added!', data['message'])
@@ -86,7 +89,6 @@ class TestUserService(BaseTestCase):
                 'Sorry. That email already exists.', data['message'])
             self.assertIn('fail', data['status'])
 
-
     def test_single_user(self):
         """Ensure get single user behaves correctly"""
         user = add_user(username='pat', email='email1@gmail.com')
@@ -130,6 +132,36 @@ class TestUserService(BaseTestCase):
             self.assertIn('emily', data['data']['users'][1]['username'])
             self.assertIn('email2@gmail.com', data['data']['users'][1]['email'])
             self.assertIn('success', data['status'])
+
+    def test_main_no_users(self):
+        """Ensure the main route behaves correctly when no users have been added to db"""
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'All Users', response.data)
+        self.assertIn(b'<p>No users!</p>', response.data)
+
+    def test_main_with_users(self):
+        """Ensure the main route behaves correctly when users have been added to db"""
+        add_user('pat', 'email1@gmail.com')
+        add_user('emily', 'email2@gmail.com')
+        with self.client:
+            response = self.client.get('/')
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'All Users', response.data)
+            self.assertNotIn(b'<p>No users!</p>', response.data)
+            self.assertIn(b'pat', response.data)
+            self.assertIn(b'emily', response.data)
+
+    def test_main_add_user(self):
+        """Ensure a new user can be added to db via a POST request"""
+        with self.client:
+            response = self.client.post('/', data=dict(username='pat',
+                                                       email='email1@gmail.com'),
+                                        follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'All Users', response.data)
+            self.assertNotIn(b'<p>No users!</p>', response.data)
+            self.assertIn(b'pat', response.data)
 
 
 if __name__ == '__main__':
