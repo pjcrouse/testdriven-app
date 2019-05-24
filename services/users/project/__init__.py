@@ -9,7 +9,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 db = SQLAlchemy()
 toolbar = DebugToolbarExtension()
 
-# new
+
 def create_app(script_info=None):
 
     # instantiate the app
